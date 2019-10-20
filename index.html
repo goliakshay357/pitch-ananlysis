@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>DSP Pitch detector!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- p5 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.sound.min.js"></script>
+    <!-- ml5 -->
+    <script src="https://unpkg.com/ml5@0.4.0/dist/ml5.min.js"></script>
+  </head>
+
+  <body>
+     <p>this is detection</p>
+    <script>
+      // Your code will go here
+      // open up your console - if everything loaded properly you should see 0.3.1
+      
+      const model_url = 'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/pitch-detection/crepe/';
+      let pitch;
+      let audioContext;
+      let mic;
+      let freq = 0;
+
+
+      console.log('ml5 version:', ml5.version);
+
+
+      
+      //p5.js
+      function setup(){
+        createCanvas(600, 600);
+        audioContext = getAudioContext();
+        mic = new p5.AudioIn();
+        mic.start(listening);
+      }
+
+      //once listening modal is loaded
+      //once modal is loaded we'll call get pitch and got pitch
+
+      function listening() {
+        console.log('listening!!');
+        pitch = ml5.pitchDetection(
+        model_url,
+        audioContext,
+        mic.stream,
+        modelLoaded
+        );
+      }
+
+      function modelLoaded() {
+          console.log('modal loaded!!');
+          pitch.getPitch(gotPitch);
+          
+      }
+
+      function gotPitch(error, frequency){
+          if(error){
+              console.error(error)
+          }
+          else{
+              if(frequency){
+                  freq = frequency;
+              }
+            //   console.log(frequency);
+          }
+        // once you got the pitch and you loaded it ... you watch to decet the pitch again
+        pitch.getPitch(gotPitch);
+      }
+
+
+      function draw(){
+        background(200);
+        textAlign(CENTER,CENTER);
+        fill(255);
+        textSize(64);
+        text(freq.toFixed(2), width/2,height/2)
+
+      }
+    </script>
+  </body>
+</html>
